@@ -135,11 +135,13 @@ class _DrawerPage extends StatelessWidget {
           Positioned(
             top: 16,
             right: 16,
-            child: CupertinoButton(
-              onPressed: onCloseTap,
-              child: const Text(
-                'Close',
-                style: TextStyle(color: Color(0xFFFFFFFF)),
+            child: SafeArea(
+              child: CupertinoButton(
+                onPressed: onCloseTap,
+                child: const Text(
+                  'Close',
+                  style: TextStyle(color: Color(0xFFFFFFFF)),
+                ),
               ),
             ),
           )
