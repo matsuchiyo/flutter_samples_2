@@ -1,6 +1,5 @@
 
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 void main() {
@@ -54,40 +53,33 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       body: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
         final scrollFrameHeight = constraints.maxHeight;
         final scrollFrameCenterY = scrollFrameHeight / 2;
-        return ListView.builder(
+        return ListView.separated(
           controller: _scrollController,
-          padding: _listPadding.copyWith(
-            top: _listPadding.top - _itemSpace / 2,
-            bottom: _listPadding.bottom - _itemSpace / 2,
-          ),
+          padding: _listPadding,
           itemCount: _items.length,
           itemBuilder: (BuildContext context, int i) {
-            final itemCenterYInScrollContent = (_listPadding.top - _itemSpace / 2)
-                + (_itemSpace / 2 + _itemHeight + _itemSpace / 2) * i
-                + _itemSpace / 2 + _itemHeight / 2;
+            final itemCenterYInScrollContent = _listPadding.top + (_itemHeight + _itemSpace) * i + _itemHeight / 2;
             final itemCenterYInScrollFrame = itemCenterYInScrollContent - _scrollController.offset;
             final distanceBetweenItemCenterYInScrollFrameAndScrollFrameCenterY = (scrollFrameCenterY - itemCenterYInScrollFrame).abs();
             final distanceBetweenCircularOrbitCenterAndItemMaxX = sqrt(
-              max(
-                0, // マイナスにならないように。
-                pow(_circularOrbitRadius, 2) - pow(distanceBetweenItemCenterYInScrollFrameAndScrollFrameCenterY, 2) // 三平方の定理を使っているだけ。
-              )
+                max(
+                    0, // マイナスにならないように。
+                    pow(_circularOrbitRadius, 2) - pow(distanceBetweenItemCenterYInScrollFrameAndScrollFrameCenterY, 2) // 三平方の定理を使っているだけ。
+                )
             );
             final itemMarginRight = _circularOrbitRadius - distanceBetweenCircularOrbitCenterAndItemMaxX;
-
-            const itemVerticalPadding = _itemSpace / 2;
 
             return Stack(
               key: ValueKey(i),
               children: [
                 Container(
-                  height: itemVerticalPadding + _itemHeight + itemVerticalPadding,
+                  height: _itemHeight,
                   width: double.infinity,
                   color: Colors.blue.withOpacity(0.25),
                 ),
                 Positioned(
-                  top: itemVerticalPadding,
-                  bottom: itemVerticalPadding,
+                  top: 0,
+                  bottom: 0,
                   right: itemMarginRight,
                   child: Container(
                     color: Colors.blue,
@@ -104,6 +96,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                 ),
               ],
             );
+          },
+          separatorBuilder: (BuildContext context, int i) {
+            return const SizedBox(height: _itemSpace);
           },
         );
       }),
