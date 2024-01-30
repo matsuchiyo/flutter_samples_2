@@ -4,10 +4,9 @@ import 'dart:math' as math;
 import 'package:flutter/rendering.dart';
 
 class LinearGradientRotation extends GradientTransform {
-  final double degree;
-  final bool? logEnabled;
+  final double degree; // 6時→12時の方向が0degree。そこから時計回り。
 
-  const LinearGradientRotation(this.degree, {this.logEnabled});
+  const LinearGradientRotation({required this.degree});
 
   @override
   Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
@@ -36,8 +35,8 @@ class LinearGradientRotation extends GradientTransform {
     } else if (radians2 == (math.pi / 2)) {
       scaleY = bounds.width / bounds.height;
     } else if (radians2 > (math.pi / 2) && radians2 < (math.pi - cornerBDC)) {
-      final cosOfCornerBDCPlusHalfPiMinusRadians2 = math.cos(cornerBDC + math.pi / 2 - radians2);
-      scaleY = ((diagonalLength / 2) * cosOfCornerBDCPlusHalfPiMinusRadians2 * 2) / bounds.height;
+      final cosOfCornerDBCPlusHalfPiMinusRadians2 = math.cos(cornerDBC + math.pi / 2 - radians2);
+      scaleY = ((diagonalLength / 2) * cosOfCornerDBCPlusHalfPiMinusRadians2 * 2) / bounds.height;
     } else if (radians2 == (math.pi - cornerBDC)) {
       scaleY = diagonalLength / bounds.height;
     } else if (radians2 > (math.pi - cornerBDC)) {
