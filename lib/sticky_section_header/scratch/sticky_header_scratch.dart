@@ -1,7 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_samples_2/sticky_header/scratch/sticky_list_view.dart';
-import 'package:flutter_samples_2/sticky_header/scratch/sticky_list_view_element.dart';
+import 'package:flutter_samples_2/sticky_section_header/scratch/sticky_list_view.dart';
+import 'package:flutter_samples_2/sticky_section_header/scratch/sticky_list_view_element.dart';
 
 void main() {
   runApp(const MyApp());

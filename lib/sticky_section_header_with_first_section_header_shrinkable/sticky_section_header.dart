@@ -2,7 +2,11 @@
 
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart' hide Element;
+import 'package:flutter_samples_2/sticky_section_header_with_first_section_header_shrinkable/element.dart';
+import 'package:flutter_samples_2/sticky_section_header_with_first_section_header_shrinkable/item_view.dart';
+import 'package:flutter_samples_2/sticky_section_header_with_first_section_header_shrinkable/section_header.dart';
+import 'package:flutter_samples_2/sticky_section_header_with_first_section_header_shrinkable/sticky_item_view.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,37 +29,93 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late ScrollController _scrollController;
+  List<Element> items = [];
+  StickyItem? _currentStickyItem;
+
+  @override
+  initState() {
+    super.initState();
+
+    _scrollController = ScrollController();
+
+    items = List.generate(10, (i) {
+      return <Element>[
+        StickyItem(builder: (context) => SectionHeader(title: 'Section Headerrr $i')),
+        ...List.generate(10, (i2) => NormalItem(
+          builder: (context) => ItemView(title: 'Itemmm $i $i2'),
+        )),
+      ];
+    }).expand((e) => e).toList();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final marginTopOfStickyItem = _SliverPersistentHeaderDelegateImpl.firstSectionHeaderMinHeight + _SliverPersistentHeaderDelegateImpl.headerMinHeight;
     return CupertinoPageScaffold(
-      child: CustomScrollView(
-        slivers: [
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _SliverPersistentHeaderDelegateImpl(),
+      child: Stack(
+        children: [
+          CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _SliverPersistentHeaderDelegateImpl(),
+              ),
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  childCount: items.length,
+                      (context, i) {
+                    final item = items[i];
+                    switch (item) {
+                      case NormalItem(builder: final builder):
+                        return builder(context);
+                      case StickyItem(builder: final builder):
+                        final previousStickyIndex = items.sublist(0, max(0, i - 1)).lastIndexWhere((element) => element is StickyItem);
+                        return StickyItemView(
+                          scrollController: _scrollController,
+                          item: item,
+                          previousStickyItem: previousStickyIndex == -1 ? null : (items[previousStickyIndex] as StickyItem),
+                          marginTopOfStickyItem: marginTopOfStickyItem,
+                          onCurrentStickyItemChanged: (stickyItem) {
+                            if (stickyItem == _currentStickyItem) return;
+                            setState(() {
+                              _currentStickyItem = stickyItem;
+                            });
+                          },
+                        );
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              childCount: 50,
-              (context, i) {
-                return Container(
-                  padding: const EdgeInsets.all(16),
-                  child: Text('Item $i'),
-                );
-              },
-            )
+          Positioned(
+            top: marginTopOfStickyItem,
+            left: 0,
+            right: 0,
+            child: _currentStickyItem?.builder(context) ?? const SizedBox(),
           ),
-        ]
+        ],
       ),
     );
   }
 }
 
+
+
 class _SliverPersistentHeaderDelegateImpl extends SliverPersistentHeaderDelegate {
   static const headerMaxHeight = 128.0;
   static const headerMinHeight = 64.0;
   static const firstSectionHeaderMaxHeight = 48.0;
-  static const firstSectionHeaderMinHeight = 24.0;
+  // static const firstSectionHeaderMinHeight = 24.0;
+  static const firstSectionHeaderMinHeight = SectionHeader.height;
 
   @override
   double get maxExtent => headerMaxHeight + firstSectionHeaderMaxHeight;
@@ -76,7 +136,6 @@ class _SliverPersistentHeaderDelegateImpl extends SliverPersistentHeaderDelegate
   }
 
   Widget _build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    print('***** _SliverPersistentHeaderDelegateImpl shrinkOffset: $shrinkOffset, overlapsContent: $overlapsContent');
     final headerHeight = max(
       headerMinHeight,
       headerMaxHeight - shrinkOffset,
@@ -88,7 +147,6 @@ class _SliverPersistentHeaderDelegateImpl extends SliverPersistentHeaderDelegate
         (maxExtent - shrinkOffset) - headerHeight,
       ),
     );
-    print('******* headerHeight: $headerHeight, firstSectionHeaderHeight: $firstSectionHeaderHeight');
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,

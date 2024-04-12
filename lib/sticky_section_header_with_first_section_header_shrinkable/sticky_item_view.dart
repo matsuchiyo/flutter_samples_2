@@ -1,92 +1,16 @@
 
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_samples_2/sticky_section_header/scratch/sticky_list_view_element.dart';
+import 'package:flutter_samples_2/sticky_section_header_with_first_section_header_shrinkable/element.dart';
 
-class StickyListView extends StatefulWidget {
-  final List<StickyListViewElement> items;
-  final double marginTopOfStickyItem;
-
-  const StickyListView({
-    super.key,
-    required this.items,
-    required this.marginTopOfStickyItem,
-  });
-  @override
-  State<StickyListView> createState() => _StickyListViewState();
-}
-
-class _StickyListViewState extends State<StickyListView> {
-
-  late ScrollController _scrollController;
-
-  StickyItem? _currentStickyItem;
-
-  @override
-  void initState() {
-    _scrollController = ScrollController();
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final items = widget.items;
-    final marginTopOfStickyItem = widget.marginTopOfStickyItem;
-    
-    return Stack(
-      children: [
-        ListView.builder(
-          padding: EdgeInsets.only(top: marginTopOfStickyItem),
-          controller: _scrollController,
-          itemCount: items.length,
-          itemBuilder: (context, i) {
-            final item = items[i];
-            switch (item) {
-              case NormalItem(builder: final builder):
-                return builder(context);
-              case StickyItem(builder: final builder):
-                final previousStickyIndex = items.sublist(0, max(0, i - 1)).lastIndexWhere((element) => element is StickyItem);
-                return _StickyItemView(
-                  scrollController: _scrollController,
-                  item: item,
-                  previousStickyItem: previousStickyIndex == -1 ? null : (items[previousStickyIndex] as StickyItem),
-                  marginTopOfStickyItem: marginTopOfStickyItem,
-                  onCurrentStickyItemChanged: (stickyItem) {
-                    if (stickyItem == _currentStickyItem) return;
-                    setState(() {
-                      _currentStickyItem = stickyItem;
-                    });
-                  },
-                );
-            }
-          },
-        ),
-        Positioned(
-          top: marginTopOfStickyItem,
-          left: 0,
-          right: 0,
-          child: _currentStickyItem?.builder(context) ?? const SizedBox(),
-        ),
-      ],
-    );
-  }
-}
-
-
-class _StickyItemView extends StatefulWidget {
+class StickyItemView extends StatefulWidget {
   final ScrollController scrollController;
   final StickyItem item;
   final StickyItem? previousStickyItem;
   final double marginTopOfStickyItem;
   final void Function(StickyItem? stickyItem) onCurrentStickyItemChanged;
 
-  const _StickyItemView({
+  const StickyItemView({
+    super.key,
     required this.scrollController,
     required this.item,
     required this.previousStickyItem,
@@ -95,10 +19,10 @@ class _StickyItemView extends StatefulWidget {
   });
 
   @override
-  State<_StickyItemView> createState() => _StickyItemViewState();
+  State<StickyItemView> createState() => _StickyItemViewState();
 }
 
-class _StickyItemViewState extends State<_StickyItemView> {
+class _StickyItemViewState extends State<StickyItemView> {
   bool isThisStickyItemVisible = true;
   bool isPreviousStickyItemVisible = false;
   final key = GlobalKey();
@@ -109,6 +33,7 @@ class _StickyItemViewState extends State<_StickyItemView> {
   void initState() {
     super.initState();
     _scrollControllerListener = () {
+      print('***** scrollControllerListener');
       bool isPreviousStickyItemVisibleTemp = isPreviousStickyItemVisible;
       bool isThisStickyItemVisibleTemp = isThisStickyItemVisible;
 
@@ -134,6 +59,7 @@ class _StickyItemViewState extends State<_StickyItemView> {
         isPreviousStickyItemVisibleTemp != isPreviousStickyItemVisible ||
         isThisStickyItemVisibleTemp != isThisStickyItemVisible
       ) {
+        print('***** scrollControllerListener 2');
         setState(() {
           isPreviousStickyItemVisible = isPreviousStickyItemVisibleTemp;
           isThisStickyItemVisible = isThisStickyItemVisibleTemp;
