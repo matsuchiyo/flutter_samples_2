@@ -32,6 +32,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late ScrollController _scrollController;
   List<Element> items = [];
   StickyItem? _currentStickyItem;
+  bool isFirstSectionHeaderHidden = false;
 
   @override
   initState() {
@@ -41,9 +42,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
     items = List.generate(10, (i) {
       return <Element>[
-        StickyItem(builder: (context) => SectionHeader(title: 'Section Headerrr $i')),
+        // ...(i == 0 ? [] : [StickyItem(builder: (context) => SectionHeader(title: 'Section Header $i'))]),
+        StickyItem(builder: (context) => SectionHeader(title: 'Section Header $i')),
         ...List.generate(10, (i2) => NormalItem(
-          builder: (context) => ItemView(title: 'Itemmm $i $i2'),
+          builder: (context) => ItemView(title: 'Item $i $i2'),
         )),
       ];
     }).expand((e) => e).toList();
@@ -57,7 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final marginTopOfStickyItem = _SliverPersistentHeaderDelegateImpl.firstSectionHeaderMinHeight + _SliverPersistentHeaderDelegateImpl.headerMinHeight;
+    final marginTopOfStickyItem = _SliverPersistentHeaderDelegateImpl.headerMinHeight;
+    final itemsWithoutFirstSectionHeader = items.sublist(1);
     return CupertinoPageScaffold(
       child: Stack(
         children: [
@@ -66,28 +69,45 @@ class _MyHomePageState extends State<MyHomePage> {
             slivers: [
               SliverPersistentHeader(
                 pinned: true,
-                delegate: _SliverPersistentHeaderDelegateImpl(),
+                delegate: _SliverPersistentHeaderDelegateImpl(
+                  // isFirstSectionHeaderHidden: _currentStickyItem != null,
+                  isFirstSectionHeaderHidden: isFirstSectionHeaderHidden,
+                ),
               ),
               SliverList(
                 delegate: SliverChildBuilderDelegate(
-                  childCount: items.length,
-                      (context, i) {
-                    final item = items[i];
+                  childCount: itemsWithoutFirstSectionHeader.length,
+                  (context, i) {
+                    final item = itemsWithoutFirstSectionHeader[i];
                     switch (item) {
                       case NormalItem(builder: final builder):
                         return builder(context);
                       case StickyItem(builder: final builder):
                         final previousStickyIndex = items.sublist(0, max(0, i - 1)).lastIndexWhere((element) => element is StickyItem);
+                        final previousStickyItem = items[previousStickyIndex] as StickyItem;
                         return StickyItemView(
                           scrollController: _scrollController,
                           item: item,
-                          previousStickyItem: previousStickyIndex == -1 ? null : (items[previousStickyIndex] as StickyItem),
+                          previousStickyItem: previousStickyItem,
                           marginTopOfStickyItem: marginTopOfStickyItem,
                           onCurrentStickyItemChanged: (stickyItem) {
                             if (stickyItem == _currentStickyItem) return;
+
+                            // firstSectionHeaderは、PersistentSliverHeaderで実装するので、ここで_currentStickyItemに設定することはしない。
+                            final isFirst = stickyItem == items.first;
+                            if (isFirst) return;
+
                             setState(() {
                               _currentStickyItem = stickyItem;
                             });
+                          },
+                          onPreviousStickyItemVisibilityChanged: (isPreviousStickyItemVisible) {
+                            final isSecondSectionHeader = previousStickyItem == items.first;
+                            if (isSecondSectionHeader) {
+                              setState(() {
+                                isFirstSectionHeaderHidden = isPreviousStickyItemVisible;
+                              });
+                            }
                           },
                         );
                     }
@@ -114,8 +134,13 @@ class _SliverPersistentHeaderDelegateImpl extends SliverPersistentHeaderDelegate
   static const headerMaxHeight = 128.0;
   static const headerMinHeight = 64.0;
   static const firstSectionHeaderMaxHeight = 48.0;
-  // static const firstSectionHeaderMinHeight = 24.0;
   static const firstSectionHeaderMinHeight = SectionHeader.height;
+
+  bool isFirstSectionHeaderHidden;
+
+  _SliverPersistentHeaderDelegateImpl({
+    required this.isFirstSectionHeaderHidden,
+  });
 
   @override
   double get maxExtent => headerMaxHeight + firstSectionHeaderMaxHeight;
@@ -155,44 +180,47 @@ class _SliverPersistentHeaderDelegateImpl extends SliverPersistentHeaderDelegate
           height: headerHeight,
           color: const Color(0x88FF0000),
         ),
-        Container(
-          height: firstSectionHeaderHeight,
-          color: const Color(0x880000FF),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 8,
-            vertical: 4,
-          ),
-          child: Stack(
-            children: [
-              const SizedBox.expand(),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: Opacity(
-                  opacity: (firstSectionHeaderHeight - firstSectionHeaderMinHeight) / (firstSectionHeaderMaxHeight - firstSectionHeaderMinHeight),
-                  child: const Text(
-                    'Message',
+        Opacity(
+          opacity: isFirstSectionHeaderHidden ? 0.0 : 1.0,
+          child: Container(
+            height: firstSectionHeaderHeight,
+            color: const Color(0x880000FF),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: 4,
+            ),
+            child: Stack(
+              children: [
+                const SizedBox.expand(),
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Opacity(
+                    opacity: (firstSectionHeaderHeight - firstSectionHeaderMinHeight) / (firstSectionHeaderMaxHeight - firstSectionHeaderMinHeight),
+                    child: const Text(
+                      'Message',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF000000),
+                      ),
+                    ),
+                  ),
+                ),
+                const Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Text(
+                    'Section Header 0',
                     style: TextStyle(
                       fontSize: 12,
                       color: Color(0xFF000000),
                     ),
                   ),
                 ),
-              ),
-              const Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Text(
-                  'Section Header 0',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF000000),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
@@ -201,6 +229,6 @@ class _SliverPersistentHeaderDelegateImpl extends SliverPersistentHeaderDelegate
 
   @override
   bool shouldRebuild(covariant _SliverPersistentHeaderDelegateImpl oldDelegate) {
-    return false; // TODO:
+    return oldDelegate.isFirstSectionHeaderHidden != isFirstSectionHeaderHidden;
   }
 }

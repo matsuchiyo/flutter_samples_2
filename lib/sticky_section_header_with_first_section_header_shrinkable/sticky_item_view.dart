@@ -8,6 +8,7 @@ class StickyItemView extends StatefulWidget {
   final StickyItem? previousStickyItem;
   final double marginTopOfStickyItem;
   final void Function(StickyItem? stickyItem) onCurrentStickyItemChanged;
+  final void Function(bool isPreviousStickyItemVisible) onPreviousStickyItemVisibilityChanged;
 
   const StickyItemView({
     super.key,
@@ -16,6 +17,7 @@ class StickyItemView extends StatefulWidget {
     required this.previousStickyItem,
     required this.marginTopOfStickyItem,
     required this.onCurrentStickyItemChanged,
+    required this.onPreviousStickyItemVisibilityChanged,
   });
 
   @override
@@ -33,7 +35,6 @@ class _StickyItemViewState extends State<StickyItemView> {
   void initState() {
     super.initState();
     _scrollControllerListener = () {
-      print('***** scrollControllerListener');
       bool isPreviousStickyItemVisibleTemp = isPreviousStickyItemVisible;
       bool isThisStickyItemVisibleTemp = isThisStickyItemVisible;
 
@@ -59,12 +60,12 @@ class _StickyItemViewState extends State<StickyItemView> {
         isPreviousStickyItemVisibleTemp != isPreviousStickyItemVisible ||
         isThisStickyItemVisibleTemp != isThisStickyItemVisible
       ) {
-        print('***** scrollControllerListener 2');
         setState(() {
           isPreviousStickyItemVisible = isPreviousStickyItemVisibleTemp;
           isThisStickyItemVisible = isThisStickyItemVisibleTemp;
         });
         widget.onCurrentStickyItemChanged(isThisStickyItemVisibleTemp ? (isPreviousStickyItemVisibleTemp ? null : widget.previousStickyItem) : widget.item);
+        widget.onPreviousStickyItemVisibilityChanged(isPreviousStickyItemVisibleTemp);
       }
     };
     widget.scrollController.addListener(_scrollControllerListener!);
