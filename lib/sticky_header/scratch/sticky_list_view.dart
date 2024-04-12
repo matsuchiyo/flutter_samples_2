@@ -107,11 +107,12 @@ class _StickyItemViewState extends State<_StickyItemView> {
   bool isThisStickyItemVisible = true;
   bool isPreviousStickyItemVisible = false;
   final key = GlobalKey();
+  VoidCallback? _scrollControllerListener;
 
   @override
   void initState() {
     super.initState();
-    widget.scrollController.addListener(() {
+    _scrollControllerListener = () {
       bool isPreviousStickyItemVisibleTemp = isPreviousStickyItemVisible;
       bool isThisStickyItemVisibleTemp = isThisStickyItemVisible;
 
@@ -143,7 +144,19 @@ class _StickyItemViewState extends State<_StickyItemView> {
         });
         widget.onCurrentStickyItemChanged(isThisStickyItemVisibleTemp ? (isPreviousStickyItemVisibleTemp ? null : widget.previousStickyItem) : widget.item);
       }
-    });
+    };
+    widget.scrollController.addListener(_scrollControllerListener!);
+  }
+
+  @override
+  void dispose() {
+    final scrollControllerListener = _scrollControllerListener;
+    if (scrollControllerListener != null) {
+      widget.scrollController.removeListener(scrollControllerListener);
+    }
+    _scrollControllerListener = null;
+
+    super.dispose();
   }
 
   @override
