@@ -67,9 +67,27 @@ class _SliverPersistentHeaderDelegateImpl extends SliverPersistentHeaderDelegate
   // overlapsContent: よくわからない。常にfalseだった。
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    // Error: SliverGeometry is not valid: The "layoutExtent" exceeds the "paintExtent".
+    // https://stackoverflow.com/a/73170774/8834586
+    return Align(
+      alignment: Alignment.center,
+      child: _build(context, shrinkOffset, overlapsContent),
+    );
+  }
+
+  Widget _build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     print('***** _SliverPersistentHeaderDelegateImpl shrinkOffset: $shrinkOffset, overlapsContent: $overlapsContent');
-    final headerHeight = max(headerMinHeight, headerMaxHeight - shrinkOffset);
-    final firstSectionHeaderHeight = max(firstSectionHeaderMinHeight, firstSectionHeaderMaxHeight + min(0, ((headerMaxHeight - headerMinHeight) - shrinkOffset)));
+    final headerHeight = max(
+      headerMinHeight,
+      headerMaxHeight - shrinkOffset,
+    );
+    final firstSectionHeaderHeight = max(
+      firstSectionHeaderMinHeight,
+      min(
+        firstSectionHeaderMaxHeight,
+        (maxExtent - shrinkOffset) - headerHeight,
+      ),
+    );
     print('******* headerHeight: $headerHeight, firstSectionHeaderHeight: $firstSectionHeaderHeight');
     return Column(
       mainAxisSize: MainAxisSize.min,
