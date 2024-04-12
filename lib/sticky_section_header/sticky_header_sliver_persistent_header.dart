@@ -37,7 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
           // ),
           SliverPersistentHeader(
             pinned: true,
-            floating: true,
+            // floating: true,
             delegate: _SliverPersistentHeaderDelegateImpl('title: $index'),
           ),
           SliverList(
