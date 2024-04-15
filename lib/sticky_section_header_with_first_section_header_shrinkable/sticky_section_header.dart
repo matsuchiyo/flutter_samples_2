@@ -95,7 +95,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
                             // firstSectionHeaderは、PersistentSliverHeaderで実装するので、ここで_currentStickyItemに設定することはしない。
                             final isFirst = stickyItem == items.first;
-                            if (isFirst) return;
+                            if (isFirst) {
+                              setState(() {
+                                _currentStickyItem = null;
+                              });
+                              return;
+                            }
 
                             setState(() {
                               _currentStickyItem = stickyItem;
