@@ -90,8 +90,10 @@ class _TabContainerState extends State<TabContainer> with TickerProviderStateMix
   }
 
   void _animateTo({ required int selectedIndex }) {
+    if (selectedIndex < 0 || selectedIndex >= widget.titles.length) return;
+
     markerAnimationController.animateTo(
-      selectedIndex.toDouble() / max(0.001, widget.titles.length - 1),
+      selectedIndex.toDouble() / max(1, widget.titles.length - 1),
       duration: duration,
       curve: curve,
     );
@@ -107,9 +109,9 @@ class _TabContainerState extends State<TabContainer> with TickerProviderStateMix
 
   void _setInitialAnimationValue({ required int initialSelectedIndex }) {
     final modifiedInitialSelectedIndex = max(0, min(widget.titles.length - 1, initialSelectedIndex));
-    markerAnimationController.value = modifiedInitialSelectedIndex.toDouble() / max(0.001, widget.titles.length - 1);
+    markerAnimationController.value = modifiedInitialSelectedIndex.toDouble() / max(1, widget.titles.length - 1);
     tabSelectionAnimationControllers.asMap().forEach((i, controller) {
-      controller.value = i == initialSelectedIndex ? 1.0 : 0.0;
+      controller.value = i == modifiedInitialSelectedIndex ? 1.0 : 0.0;
     });
   }
 
@@ -143,11 +145,14 @@ class _TabContainerState extends State<TabContainer> with TickerProviderStateMix
                 child: SlideTransition(
                   position: Tween(
                     begin: Offset.zero,
-                    end: Offset(widget.titles.length - 1.0, 0.0)
+                    end: Offset(
+                      max(0.0, widget.titles.length - 1.0),
+                      0.0,
+                    )
                   ).animate(markerAnimationController),
                   child: Container(
                     height: maxHeight,
-                    width: maxWidth / max(0.001, widget.titles.length),
+                    width: maxWidth / max(1, widget.titles.length),
                     decoration: BoxDecoration(
                       color: const Color(0xff000000),
                       borderRadius: BorderRadius.all(Radius.circular(maxHeight / 2)),
