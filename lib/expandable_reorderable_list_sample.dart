@@ -25,6 +25,32 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Map<int, bool> expandedStatusMap = {};
 
+
+  // reference: https://api.flutter.dev/flutter/widgets/DecoratedBoxTransition-class.html
+  final DecorationTween decorationTween = DecorationTween(
+    begin: BoxDecoration(
+      color: const Color(0xFFFFFFFF),
+      border: Border.all(style: BorderStyle.none),
+      borderRadius: BorderRadius.circular(60.0),
+      boxShadow: const <BoxShadow>[
+        BoxShadow(
+          color: Color(0x66666666),
+          blurRadius: 10.0,
+          spreadRadius: 3.0,
+          offset: Offset(0, 6.0),
+        ),
+      ],
+    ),
+    end: BoxDecoration(
+      color: const Color(0xFFFFFFFF),
+      border: Border.all(
+        style: BorderStyle.none,
+      ),
+      borderRadius: BorderRadius.zero,
+      // No shadow.
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -41,6 +67,12 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         onReorder: (oldIndex, newIndex) {
           print('***** onReorder $oldIndex, $newIndex');
+        },
+        proxyDecorator: (child, index, animation) {
+          return DecoratedBoxTransition(
+            decoration: decorationTween.animate(animation),
+            child: child,
+          );
         },
       ),
     );
