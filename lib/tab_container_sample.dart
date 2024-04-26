@@ -25,7 +25,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final controller = TabContainerController(initialSelectedIndex: 2);
+  late final TabContainerController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TabContainerController(initialSelectedIndex: 2);
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -117,7 +130,6 @@ class _TabContainerState extends State<TabContainer> with TickerProviderStateMix
 
   @override
   void dispose() {
-    widget.controller.dispose();
     markerAnimationController.dispose();
     for (var controller in tabSelectionAnimationControllers) {
       controller.dispose();
