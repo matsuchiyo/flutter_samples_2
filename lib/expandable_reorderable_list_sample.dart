@@ -61,7 +61,6 @@ class _MyHomePageState extends State<MyHomePage> {
             key: ValueKey(item),
             index: i,
             child: _ExpandableItem(
-              index: i,
               title: item.$1,
               isInitiallyExpanded: item.$2,
               onExpandedStatusChanged: (newExpandedStatus) {
@@ -96,13 +95,11 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class _ExpandableItem extends StatefulWidget {
-  final int index;
   final String title;
   final bool isInitiallyExpanded;
   final void Function(bool isExpanded) onExpandedStatusChanged;
   const _ExpandableItem({
     super.key,
-    required this.index,
     required this.title,
     required this.isInitiallyExpanded,
     required this.onExpandedStatusChanged,
