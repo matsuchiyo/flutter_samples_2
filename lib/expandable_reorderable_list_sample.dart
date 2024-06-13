@@ -32,6 +32,14 @@ class _MyHomePageState extends State<MyHomePage> {
   final DecorationTween decorationTween = DecorationTween(
     begin: BoxDecoration(
       color: const Color(0xFFFFFFFF),
+      border: Border.all(
+        style: BorderStyle.none,
+      ),
+      borderRadius: BorderRadius.zero,
+      // No shadow.
+    ),
+    end: BoxDecoration(
+      color: const Color(0xFFFFFFFF),
       border: Border.all(style: BorderStyle.none),
       borderRadius: BorderRadius.circular(60.0),
       boxShadow: const <BoxShadow>[
@@ -42,14 +50,6 @@ class _MyHomePageState extends State<MyHomePage> {
           offset: Offset(0, 6.0),
         ),
       ],
-    ),
-    end: BoxDecoration(
-      color: const Color(0xFFFFFFFF),
-      border: Border.all(
-        style: BorderStyle.none,
-      ),
-      borderRadius: BorderRadius.zero,
-      // No shadow.
     ),
   );
 
