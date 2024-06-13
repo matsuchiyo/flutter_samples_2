@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
           return ReorderableDragStartListener(
             key: ValueKey(item),
             index: i,
-            child: _ExpandableItem(
+            child: ExpandableItem(
               title: item.$1,
               isInitiallyExpanded: item.$2,
               onExpandedStatusChanged: (newExpandedStatus) {
@@ -94,21 +94,21 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class _ExpandableItem extends StatefulWidget {
+class ExpandableItem extends StatefulWidget {
   final String title;
   final bool isInitiallyExpanded;
   final void Function(bool isExpanded) onExpandedStatusChanged;
-  const _ExpandableItem({
+  const ExpandableItem({
     super.key,
     required this.title,
     required this.isInitiallyExpanded,
     required this.onExpandedStatusChanged,
   });
   @override
-  State<_ExpandableItem> createState() => _ExpandableItemState();
+  State<ExpandableItem> createState() => _ExpandableItemState();
 }
 
-class _ExpandableItemState extends State<_ExpandableItem> {
+class _ExpandableItemState extends State<ExpandableItem> {
   bool isExpanded = false;
 
   @override
