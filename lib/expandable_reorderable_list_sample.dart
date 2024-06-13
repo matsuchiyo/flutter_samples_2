@@ -23,6 +23,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   static const count = 50;
 
+  List<String> items = List.generate(count, (i) => 'Item $i');
+
   Map<int, bool> expandedStatusMap = {};
 
 
@@ -56,15 +58,18 @@ class _MyHomePageState extends State<MyHomePage> {
     return CupertinoPageScaffold(
       child: ReorderableList(
         itemCount: count,
-        itemBuilder: (context, i) => _ExpandableItem(
-          key: ValueKey(i),
-          index: i,
-          title: 'Item $i',
-          isInitiallyExpanded: expandedStatusMap[i] ?? false,
-          onExpandedStatusChanged: (newExpandedStatus) {
-            expandedStatusMap[i] = newExpandedStatus;
-          },
-        ),
+        itemBuilder: (context, i) {
+          final item = items[i];
+          return _ExpandableItem(
+            key: ValueKey(item),
+            index: i,
+            title: item,
+            isInitiallyExpanded: expandedStatusMap[i] ?? false,
+            onExpandedStatusChanged: (newExpandedStatus) {
+              expandedStatusMap[i] = newExpandedStatus;
+            },
+          );
+        },
         onReorder: (oldIndex, newIndex) {
           print('***** onReorder $oldIndex, $newIndex');
         },
