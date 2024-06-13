@@ -23,10 +23,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   static const count = 50;
 
-  List<String> items = List.generate(count, (i) => 'Item $i');
-
-  Map<int, bool> expandedStatusMap = {};
-
+  List<(String, bool)> items = List.generate(count, (i) => ('Item $i', false));
 
   // reference: https://api.flutter.dev/flutter/widgets/DecoratedBoxTransition-class.html
   final DecorationTween decorationTween = DecorationTween(
@@ -41,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
     end: BoxDecoration(
       color: const Color(0xFFFFFFFF),
       border: Border.all(style: BorderStyle.none),
-      borderRadius: BorderRadius.circular(60.0),
+      borderRadius: BorderRadius.circular(16.0),
       boxShadow: const <BoxShadow>[
         BoxShadow(
           color: Color(0x66666666),
@@ -65,10 +62,10 @@ class _MyHomePageState extends State<MyHomePage> {
             index: i,
             child: _ExpandableItem(
               index: i,
-              title: item,
-              isInitiallyExpanded: expandedStatusMap[i] ?? false,
+              title: item.$1,
+              isInitiallyExpanded: item.$2,
               onExpandedStatusChanged: (newExpandedStatus) {
-                expandedStatusMap[i] = newExpandedStatus;
+                items[i] = (item.$1, newExpandedStatus);
               },
             ),
           );
