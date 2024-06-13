@@ -75,6 +75,17 @@ class _MyHomePageState extends State<MyHomePage> {
         },
         onReorder: (oldIndex, newIndex) {
           print('***** onReorder $oldIndex, $newIndex');
+          if (oldIndex < newIndex) {
+            items = [...items]
+              ..insert(newIndex, items[oldIndex])
+              ..removeAt(oldIndex);
+            setState(() {});
+          } else if (oldIndex > newIndex) {
+            items = [...items]
+              ..removeAt(oldIndex)
+              ..insert(newIndex, items[oldIndex]);
+            setState(() {});
+          }
         },
         proxyDecorator: (child, index, animation) {
           return DecoratedBoxTransition(
